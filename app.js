@@ -108,7 +108,7 @@ function renderQuiz(){
     const meaning=isPair?`${esc(z.item.a)}：${esc(z.item.meaningA)}<br>${esc(z.item.b)}：${esc(z.item.meaningB)}`:esc(z.item.meaning);
     result=`<div class="answer-panel ${q.correct?'':'bad'}"><strong>${q.correct?'答对了！':'已记入错词，今天再复习一次。'}</strong>${meaning}${!isPair&&z.item.example?`<div class="example">例句：${esc(z.item.example)}</div>`:''}</div>`;
   }
-  return `<div class="quiz-card"><div class="quiz-top"><span>${q.isReview?'每日错词复习':isPair?'等价词每日词表':'中文释义每日词表'} · 本组 ${counter}</span><span>${q.right} 对 / ${q.wrong} 错</span></div><div class="progress-track"><div class="progress-fill" style="width:${((q.index+1)/q.items.length)*100}%"></div></div>${isPair?`<span class="pair-topic">请选择意思等价的两个词</span><h2 class="question-word" style="font-size:31px">哪两个词能配成一组？</h2><p class="question-sub">选择两个答案后自动判分</p>`:`<div class="question-label">请选择这个词的中文意思</div><h2 class="question-word">${esc(z.item.word)}</h2><p class="question-sub">先想一想，再选择你认为正确的意思。</p>`}<div class="options ${isPair?'pair-options':''}">${options}</div>${isPair&&!q.answered?'<div class="pair-hint">已选 <span id="selectedCount">'+q.selected.length+'</span> / 2</div>':''}${result}<div class="quiz-footer"><button class="quiet" data-action="end-quiz">暂时退出</button>${q.answered?'<button class="primary" data-action="next-question">下一题 →</button>':isPair?'<span class="small-note">选择两个词</span>':'<span></span>'}</div></div>`;
+  return `<div class="quiz-card"><div class="quiz-top"><span>${q.isReview?'每日错词复习':isPair?'等价词每日词表':'中文释义每日词表'} · 本组 ${counter}</span><span>${q.right} 对 / ${q.wrong} 错</span></div><div class="progress-track"><div class="progress-fill" style="width:${((q.index+1)/q.items.length)*100}%"></div></div>${isPair?`<span class="pair-topic">请选择意思等价的两个词</span><h2 class="question-word" style="font-size:31px">哪两个词能配成一组？</h2><p class="question-sub">选择两个答案后自动判分</p>`:`<div class="question-label">请选择这个词的中文意思</div><h2 class="question-word">${esc(z.item.word)}</h2><p class="question-sub">先想一想，再选择你认为正确的意思。</p>`}<div class="options ${isPair?'pair-options':''}">${options}</div>${isPair&&!q.answered?'<div class="pair-hint">已选 <span id="selectedCount">'+q.selected.length+'</span> / 2</div>':''}${result}<div class="quiz-footer"><button class="quiet" data-action="end-quiz">暂时退出</button>${q.answered&&!q.correct?'<button class="primary" data-action="next-question">下一题 →</button>':q.answered?'<span class="small-note">即将进入下一题</span>':isPair?'<span class="small-note">选择两个词</span>':'<span></span>'}</div></div>`;
 }
 function renderPractice(type){
   const pair=type==='pairs';
@@ -149,6 +149,7 @@ function grade(){
   q.correct=q.selected.length===z.correct.length&&q.selected.every(x=>z.correct.includes(x));q.answered=true;
   q.correct?q.right++:q.wrong++;
   mark(z.type,z.item,q.correct,q.isReview);render();
+  if(q.correct)setTimeout(()=>{if(state.quiz===q && q.answered && q.correct)next();},500);
 }
 function next(){const q=state.quiz;if(!q)return;q.index++;buildQuestion();render();}
 function toast(msg){document.querySelector('.toast')?.remove();const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.append(el);setTimeout(()=>el.remove(),3500);}
